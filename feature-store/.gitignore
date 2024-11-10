@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Config and Environment Files
+*.env
+config.yaml  # Add this if you don't want your config (with sensitive info) committed
+
+# Python virtual environment
+venv/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# macOS files
+.DS_Store
+
+# Logs
+*.log
+
+# IDE and editor specific files
+.vscode/
+.idea/
+
+# Python Package files
+*.egg-info/
+dist/
+build/
