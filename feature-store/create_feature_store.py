@@ -1,4 +1,4 @@
-from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureViewBigQuerySource
+from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureViewBigQuerySource, feature_store
 import yaml
 from google.cloud import aiplatform
 from google.api_core.exceptions import AlreadyExists
@@ -9,11 +9,13 @@ def create_feature_store(config):
     aiplatform.init(project=config['project_id'], location=config['region'])
 
     try:
-        newfs = FeatureOnlineStore.create_optimized_store(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
-        print("Feature store created successfully.")
-        newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
-        uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
-        entity_id_columns=["patient_id"],), sync_config=None )
+        # newfs = FeatureOnlineStore.create_optimized_store(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
+        # print("Feature store created successfully.")
+        newfs = feature_store.FeatureOnlineStore(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
+        print(newfs)
+        # newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
+        # uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
+        # entity_id_columns=["patient_id"],), sync_config=None )
     except AlreadyExists:
         print("Feature store already exists. Skipping creation.")
 
