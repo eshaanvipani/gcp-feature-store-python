@@ -8,18 +8,23 @@ def create_feature_store(config):
     # Initialize AI platform with project and location from config
     aiplatform.init(project=config['project_id'], location=config['region'])
 
-    try:
-        # newfs = FeatureOnlineStore.create_optimized_store(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
-        # print("Feature store created successfully.")
-        newfs = feature_store.FeatureOnlineStore(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
-        print(newfs)
-        # newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
-        # uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
-        # entity_id_columns=["patient_id"],), sync_config=None )
-    except AlreadyExists:
-        print("Feature store already exists. Skipping creation.")
+    # try:
+    #     # newfs = FeatureOnlineStore.create_optimized_store(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
+    #     # print("Feature store created successfully.")
+    #     # newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
+    #     # uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
+    #     # entity_id_columns=["patient_id"],), sync_config=None )
 
-    print(f"Feature store '{config['feature_store_name']}' created successfully.")
+    # except AlreadyExists:
+    #     print("Feature store already exists. Skipping creation.")
+    newfs = feature_store.FeatureOnlineStore(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
+    print(newfs)
+    newfv= feature_store.FeatureView(name = config['feature_view_name'],feature_online_store_id=config['feature_store_name'],project = config['project_id'],location = config['region'])
+    print(newfv)
+    newfg= feature_store.FeatureGroup(name=config['feature_group_name'],project = config['project_id'],location = config['region'])
+    print(newfg)
+    
+    print("Successful code run")
     
     # Create the feature store using the preview API
     # try:
