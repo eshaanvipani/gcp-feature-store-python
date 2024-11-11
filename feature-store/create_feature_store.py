@@ -1,6 +1,6 @@
-from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureViewBigQuerySource, feature_store, offline_store, Feature, FeatureGroup
+from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureViewBigQuerySource, feature_store, Feature, FeatureGroup
 import yaml
-from google.cloud import aiplatform
+from google.cloud import aiplatform, bigquery
 from google.api_core.exceptions import AlreadyExists
 from vertexai.resources.preview.feature_store import utils as fs_utils
 import pandas as pd
@@ -27,34 +27,42 @@ def create_feature_store(config):
     print(newfv)
     newfg= feature_store.FeatureGroup(name=config['feature_group_name'],project = config['project_id'],location = config['region'])
     print(newfg)
+
+    featureList=newfg.list_features(project = config['project_id'],location = config['region'])
+    featureNames=[]
+    for feature in featureList:
+        featureNames.append(feature.name)
+    print(featureNames)
+    client = bigquery.Client()
+
+    # Define your BigQuery table (replace with your actual table details)
+    table_id = "glowing-baton-440204-i1.featuregroup_test.test_table"
+
+    # Create a query to select only the specified features
+    query = f"""
+        SELECT {', '.join(featureNames)}
+        FROM `{table_id}`
+    """
+
+    # Execute the query
+    query_job = client.query(query)
+
+    # Convert the result to a DataFrame
+    feature_data = query_job.to_dataframe()
+
+    # Display or inspect the retrieved feature data
+    print(feature_data.to_string())
+        
     
+    # fg: FeatureGroup = FeatureGroup.create(
+    #     "TestFG",fs_utils.FeatureGroupBigQuerySource(
+    #         uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table", entity_id_columns=["patient_id"]
+    #     ),
+    # )
+
+    # patient_height_feature: Feature = fg.create_feature("patient_height")
+
     
-    fg: FeatureGroup = FeatureGroup.create(
-        "TestFG",fs_utils.FeatureGroupBigQuerySource(
-            uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table", entity_id_columns=["patient_id"]
-        ),
-    )
-
-    patient_height_feature: Feature = fg.create_feature("patient_height")
-
-
-    entity_df = pd.DataFrame(
-        data={
-            "patient_id": ["P001", "P002"],
-            "feature_timestamp": [
-                pd.Timestamp("2024-11-10T15:30:00"),
-                pd.Timestamp("2024-11-10T16:00:00"),
-            ],
-        },
-    )
-    
-
-    os=offline_store.fetch_historical_feature_values(
-        entity_df=entity_df,
-        features=[patient_height_feature],
-    )
-
-    print(os)
      
 
 
@@ -63,17 +71,7 @@ def create_feature_store(config):
 
 
     
-    # Create the feature store using the preview API
-    # try:
-    #     fg = feature_store.FeatureGroup.create(
-    #         name=config['feature_group_name'],
-    #         source=feature_store.utils.FeatureGroupBigQuerySource(
-    #             uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table", 
-    #             entity_id_columns=["patient_id"]
-    #         ),
-    #     )
-    # except AlreadyExists:
-    #     print("Feature group already exists. Skipping creation.")
+
 
     # print(f"Feature store '{config['feature_group_name']}' created successfully.")
 

@@ -36,3 +36,14 @@ six==1.16.0
 typing_extensions==4.12.2
 tzdata==2024.2
 urllib3==2.2.3
+google-cloud-aiplatform==1.71.1
+google-cloud-bigquery==3.26.0
+google-cloud-bigquery-connection==1.16.1
+google-cloud-bigquery-storage==2.27.0
+google-cloud-bigtable==2.26.0
+google-cloud-core==2.4.1
+google-cloud-functions==1.18.0
+google-cloud-iam==2.16.0
+google-cloud-pubsub==2.26.1
+google-cloud-resource-manager==1.13.0
+google-cloud-storage==2.18.2
