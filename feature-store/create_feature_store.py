@@ -2,21 +2,29 @@ from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureVie
 import yaml
 from google.cloud import aiplatform
 from google.api_core.exceptions import AlreadyExists
+from google.cloud.aiplatform_v1beta1.types import feature_view as feature_view_pb2
 
 
 def create_feature_store(config):
     # Initialize AI platform with project and location from config
     aiplatform.init(project=config['project_id'], location=config['region'])
 
-    # try:
-    #     # newfs = FeatureOnlineStore.create_optimized_store(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
-    #     # print("Feature store created successfully.")
-    #     # newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
-    #     # uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
-    #     # entity_id_columns=["patient_id"],), sync_config=None )
+    try:
+        newfs = FeatureOnlineStore.create_optimized_store(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
+        print("Feature store created successfully.")
+        newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
+        uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
+        entity_id_columns=["patient_id"],), sync_config=None )
 
-    # except AlreadyExists:
-    #     print("Feature store already exists. Skipping creation.")
+    except AlreadyExists:
+        print("Feature store already exists. Skipping creation.")
+    # feature_registry_source = feature_view_pb2.FeatureView.FeatureRegistrySource(
+    #     feature_groups=[
+    #         feature_view_pb2.FeatureView.FeatureRegistrySource.FeatureGroup(
+    #             feature_group_id=config['feature_group_name'], feature_ids=test1
+    #         )
+    #     ]
+    # )
     newfs = feature_store.FeatureOnlineStore(project = config['project_id'],location = config['region'], name = config['feature_store_name'])
     print(newfs)
     newfv= feature_store.FeatureView(name = config['feature_view_name'],feature_online_store_id=config['feature_store_name'],project = config['project_id'],location = config['region'])
