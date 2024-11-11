@@ -1,7 +1,11 @@
-from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureViewBigQuerySource, feature_store
+from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureViewBigQuerySource, feature_store, offline_store, Feature, FeatureGroup
 import yaml
 from google.cloud import aiplatform
 from google.api_core.exceptions import AlreadyExists
+from vertexai.resources.preview.feature_store import utils as fs_utils
+import pandas as pd
+
+
 
 
 def create_feature_store(config):
@@ -24,7 +28,40 @@ def create_feature_store(config):
     newfg= feature_store.FeatureGroup(name=config['feature_group_name'],project = config['project_id'],location = config['region'])
     print(newfg)
     
-    print("Successful code run")
+    
+    fg: FeatureGroup = FeatureGroup.create(
+        "TestFG",fs_utils.FeatureGroupBigQuerySource(
+            uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table", entity_id_columns=["patient_id"]
+        ),
+    )
+
+    patient_height_feature: Feature = fg.create_feature("patient_height")
+
+
+    entity_df = pd.DataFrame(
+        data={
+            "patient_id": ["P001", "P002"],
+            "feature_timestamp": [
+                pd.Timestamp("2024-11-10T15:30:00"),
+                pd.Timestamp("2024-11-10T16:00:00"),
+            ],
+        },
+    )
+    
+
+    os=offline_store.fetch_historical_feature_values(
+        entity_df=entity_df,
+        features=[patient_height_feature],
+    )
+
+    print(os)
+     
+
+
+
+
+
+
     
     # Create the feature store using the preview API
     # try:
@@ -39,6 +76,9 @@ def create_feature_store(config):
     #     print("Feature group already exists. Skipping creation.")
 
     # print(f"Feature store '{config['feature_group_name']}' created successfully.")
+
+    print("Successful code run")
+
     return "Created feature view and feature store"
 
 if __name__ == "__main__":
