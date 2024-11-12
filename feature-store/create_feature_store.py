@@ -2,7 +2,7 @@ from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureVie
 import yaml
 from google.cloud import aiplatform, bigquery
 from google.api_core.exceptions import AlreadyExists
-from vertexai.resources.preview.feature_store import utils as fs_utils
+from vertexai.resources.preview.feature_store import utils,offline_store as fs_utils
 import pandas as pd
 
 
