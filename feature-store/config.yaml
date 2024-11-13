@@ -1,5 +1,5 @@
 project_id: "glowing-baton-440204-i1"
 region: "us-central1"
-feature_store_name: "test_feature_store_nonlegacy_2"
+feature_store_name: "featurestore_bigtable"
 feature_group_name: "test_feature_group_002"
-feature_view_name: "test_feature_view_001"
+feature_view_name: "sepcialfc"

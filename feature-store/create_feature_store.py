@@ -2,9 +2,10 @@ from vertexai.resources.preview import FeatureOnlineStore,FeatureView,FeatureVie
 import yaml
 from google.cloud import aiplatform, bigquery
 from google.api_core.exceptions import AlreadyExists
-from vertexai.resources.preview.feature_store import utils,offline_store as fs_utils
+from vertexai.resources.preview.feature_store import utils, offline_store, FeatureViewReadResponse as fs_utils
 import pandas as pd
-
+from google.cloud.aiplatform_v1 import FeatureOnlineStoreServiceClient
+from google.cloud.aiplatform_v1.types import feature_online_store_service as feature_online_store_service_pb2
 
 
 
@@ -28,32 +29,33 @@ def create_feature_store(config):
     newfg= feature_store.FeatureGroup(name=config['feature_group_name'],project = config['project_id'],location = config['region'])
     print(newfg)
 
+        # newfv=newfs.create_feature_view(name = config['feature_view_name'], project=config['project_id'], location=config['region'],source = FeatureViewBigQuerySource(
+        # uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table",
+        # entity_id_columns=["patient_id"],), sync_config=None )
+    newfv.sync()
+
+    # Initialize the FeatureOnlineStoreServiceClient
+    data_client = FeatureOnlineStoreServiceClient(
+        client_options={"api_endpoint": f"{config['region']}-aiplatform.googleapis.com"}
+    )
+
+    # Create a FetchFeatureValuesRequest using the config values
+    fetch_request = feature_online_store_service_pb2.FetchFeatureValuesRequest(
+        feature_view=f"projects/{config['project_id']}/locations/{config['region']}/featureOnlineStores/{config['feature_store_name']}/featureViews/{config['feature_view_name']}",
+        data_key=feature_online_store_service_pb2.FeatureViewDataKey(key="1") # Replace ENTITY_ID with the actual identifier
+    )
+
+    # Execute the request and print the response
+    response = data_client.fetch_feature_values(request=fetch_request)
+    print(response)
+
+    # data = newfv.read(key=["1"]).to_dict()
+    # print(data)
+    # newfv.get_sync(78785651717177344)
     featureList=newfg.list_features(project = config['project_id'],location = config['region'])
     featureNames=[]
-    for feature in featureList:
-        featureNames.append(feature.name)
-    print(featureNames)
-    client = bigquery.Client()
-
-    # Define your BigQuery table (replace with your actual table details)
-    table_id = "glowing-baton-440204-i1.featuregroup_test.test_table"
-
-    # Create a query to select only the specified features
-    query = f"""
-        SELECT {', '.join(featureNames)}
-        FROM `{table_id}`
-    """
-
-    # Execute the query
-    query_job = client.query(query)
-
-    # Convert the result to a DataFrame
-    feature_data = query_job.to_dataframe()
-
-    # Display or inspect the retrieved feature data
-    print(feature_data.to_string())
-        
     
+
     # fg: FeatureGroup = FeatureGroup.create(
     #     "TestFG",fs_utils.FeatureGroupBigQuerySource(
     #         uri="bq://glowing-baton-440204-i1.featuregroup_test.test_table", entity_id_columns=["patient_id"]
